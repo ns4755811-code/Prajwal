@@ -1,10 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Prajwal Website</title>
+<meta charset="UTF-8">
+<title>Electricity Bill Payment</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f6f9;
+    padding: 20px;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0 15px;
+}
+
+button {
+    padding: 10px 15px;
+    margin-top: 10px;
+    background: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #084298;
+}
+
+.bill {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+}
+
+.center {
+    text-align: center;
+}
+
+img {
+    margin-top: 10px;
+}
+</style>
 </head>
+
 <body>
-  <h1>My Website is Live 🎉</h1>
-  <p>GitHub Pages working successfully!</p>
+
+<div class="container">
+    <h2>Electricity Bill Payment</h2>
+
+    <label>Customer Name</label>
+    <input type="text" id="name">
+
+    <label>Reference ID (11 digits)</label>
+    <input type="text" id="refId" maxlength="11">
+
+    <label>Units Consumed</label>
+    <input type="number" id="units">
+
+    <button onclick="generateBill()">Generate Bill</button>
+
+    <div class="bill" id="billArea"></div>
+</div>
+
+<script>
+function generateBill() {
+    let name = document.getElementById("name").value;
+    let refId = document.getElementById("refId").value;
+    let units = document.getElementById("units").value;
+
+    // Validation
+    if (!name || !refId || !units) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    if (!/^\d{11}$/.test(refId)) {
+        alert("Reference ID must be exactly 11 digits");
+        return;
+    }
+
+    units = Number(units);
+    let amount = 0;
+
+    // Default electricity calculation
+    if (units <= 100) amount = units * 1.5;
+    else if (units <= 200) amount = 100*1.5 + (units-100)*2.5;
+    else amount = 100*1.5 + 100*2.5 + (units-200)*4;
+
+    let upiId = "8123453021@axl"; // change to real UPI ID
+    let upiLink = `upi://pay?pa=${upiId}&pn=${name}&am=${amount}&cu=INR`;
+    let qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+
+    document.getElementById("billArea").innerHTML = `
+        <h3 class="center">Electricity Bill</h3>
+        <p><b>Name:</b> ${name}</p>
+        <p><b>Reference ID:</b> ${refId}</p>
+        <p><b>Units:</b> ${units}</p>
+        <p><b>Total Amount:</b> ₹${amount.toFixed(2)}</p>
+
+        <div class="center">
+            <p><b>Pay via UPI</b></p>
+            <a href="${upiLink}">Open UPI App</a><br>
+            <img src="${qr}">
+        </div>
+
+        <div class="center">
+            <button onclick="window.print()">Download Bill</button>
+        </div>
+    `;
+}
+</script>
+
 </body>
 </html>
